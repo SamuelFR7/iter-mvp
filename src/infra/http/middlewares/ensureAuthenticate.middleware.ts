@@ -8,6 +8,8 @@ interface IPayload {
 }
 
 export class EnsureAuthenticate implements NestMiddleware {
+  constructor(private prismaService: PrismaService) {}
+
   async use(req: Request, res: Response, next: NextFunction) {
     const authHeader = req.headers.authorization;
 
@@ -23,9 +25,9 @@ export class EnsureAuthenticate implements NestMiddleware {
         process.env.JWT_SECRET,
       ) as IPayload;
 
-      const prismaService = new PrismaService();
-
-      const user = prismaService.user.findUnique({ where: { id: user_id } });
+      const user = this.prismaService.user.findUnique({
+        where: { id: user_id },
+      });
 
       if (!user) {
         throw new HttpException(

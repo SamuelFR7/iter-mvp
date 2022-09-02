@@ -1,4 +1,10 @@
-import { Module } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
+import { EnsureAuthenticate } from './infra/http/middlewares/ensureAuthenticate.middleware';
 import { UserModule } from './modules/user/user.module';
 
 @Module({
@@ -6,4 +12,10 @@ import { UserModule } from './modules/user/user.module';
   controllers: [],
   providers: [],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(EnsureAuthenticate)
+      .forRoutes({ path: 'api', method: RequestMethod.ALL });
+  }
+}
