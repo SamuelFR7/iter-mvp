@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { compare } from 'bcryptjs';
 import { sign } from 'jsonwebtoken';
-import { PrismaService } from '../../../../infra/database/prisma/prisma.service';
+import { UserRepository } from '../../infra/prisma/UserRepository';
 
 interface UserAuthRequest {
   email: string;
@@ -17,15 +17,13 @@ export interface UserAuthResponse {
 
 @Injectable()
 export class AuthUserService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private usersRepository: UserRepository) {}
 
   async execute({
     email,
     password,
   }: UserAuthRequest): Promise<UserAuthResponse> {
-    const user = await this.prisma.user.findUnique({
-      where: { email },
-    });
+    const user = await this.usersRepository.findByEmail(email);
 
     if (!user) {
       throw new HttpException(

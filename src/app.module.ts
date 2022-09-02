@@ -5,7 +5,7 @@ import {
   RequestMethod,
 } from '@nestjs/common';
 import { EnsureAuthenticate } from './infra/http/middlewares/ensureAuthenticate.middleware';
-import { UserModule } from './modules/user/user.module';
+import { UserModule } from './modules/users/user.module';
 
 @Module({
   imports: [UserModule],
