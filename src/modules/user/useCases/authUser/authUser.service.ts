@@ -1,13 +1,7 @@
-import {
-  BadRequestException,
-  HttpException,
-  HttpStatus,
-  Injectable,
-} from '@nestjs/common';
-import { Prisma, User } from '@prisma/client';
-import { PrismaService } from '../../infra/database/prisma/prisma.service';
-import { compare, hash } from 'bcryptjs';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { compare } from 'bcryptjs';
 import { sign } from 'jsonwebtoken';
+import { PrismaService } from '../../../../infra/database/prisma/prisma.service';
 
 interface UserAuthRequest {
   email: string;
@@ -22,35 +16,10 @@ export interface UserAuthResponse {
 }
 
 @Injectable()
-export class UserService {
+export class AuthUserService {
   constructor(private prisma: PrismaService) {}
 
-  async createUser(data: Prisma.UserCreateInput): Promise<User> {
-    const { email, password, address, country, name, phone } = data;
-
-    const userAlreadyExists = await this.prisma.user.findUnique({
-      where: { email },
-    });
-
-    if (userAlreadyExists) {
-      throw new BadRequestException('User already exists');
-    }
-
-    const passwordHash = await hash(password, 8);
-
-    return this.prisma.user.create({
-      data: {
-        password: passwordHash,
-        address,
-        country,
-        email,
-        name,
-        phone,
-      },
-    });
-  }
-
-  async authUser({
+  async execute({
     email,
     password,
   }: UserAuthRequest): Promise<UserAuthResponse> {
